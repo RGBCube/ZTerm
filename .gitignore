@@ -3,4 +3,5 @@
 
 !.gitignore
 
+!*.md
 !*.zig
