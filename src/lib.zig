@@ -3,9 +3,9 @@ const Mutex = std.Thread.Mutex;
 const time = std.time;
 
 const default_frame_rate = 150 * time.ns_per_ms;
-const default_charset = [_][]u8{ "|", "/", "-", "\\" };
+const default_charset = [_][]const u8{ "|", "/", "-", "\\" };
 
-const Spinner = struct {
+pub const Spinner = struct {
     // When locked, the spinner will stop spinning.
     stop_lock: Mutex,
     // Used to check if stopped.
@@ -15,22 +15,23 @@ const Spinner = struct {
     charset: [][]const u8,
     message: []const u8,
 
-    export fn new(framerate: ?u64, charset: ?[][]const u8, message: ?[]const u8) Spinner {
+    pub fn new(framerate: ?u64, charset: ?[][]const u8, message: ?[]const u8) Spinner {
         return Spinner{
-            .thread_lock = Mutex{},
-            .ns_per_frame = framerate orelse default_frame_rate,
+            .stop_lock = Mutex{},
+            .stopped_lock = Mutex{},
+            .framerate = framerate orelse default_frame_rate,
             .charset = charset orelse default_charset,
             .message = message orelse "",
         };
     }
 
-    export fn start(sp: *Spinner) void {
+    pub fn start(sp: *Spinner) void {
         sp.stop_lock.unlock();
         sp.stopped_lock.unlock();
         async sp.writer();
     }
 
-    export fn stop(sp: *Spinner) void {
+    pub fn stop(sp: *Spinner) void {
         sp.stop_lock.lock();
         sp.stopped_lock.lock();
     }
@@ -64,7 +65,6 @@ const Spinner = struct {
         sp.stopped_lock.lock();
     }
 };
-
 
 test "asd" {
     var sp = Spinner.new(null, null, "Loading...");
