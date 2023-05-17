@@ -28,27 +28,27 @@ pub fn stop(sp: *Spinner) !void {
     sp.keep_going.store(false, .SeqCst);
     if (sp.spinner_thread) |*thread| thread.join();
 
-    var stdOut = std.io.getStdOut();
+    var stdErr = std.io.getStdErr();
 
-    _ = try stdOut.write("\r");
-    _ = try stdOut.write(sp.finished_charset);
-    _ = try stdOut.write(" ");
-    _ = try stdOut.write(sp.finished_message);
+    _ = try stdErr.write("\r");
+    _ = try stdErr.write(sp.finished_charset);
+    _ = try stdErr.write(" ");
+    _ = try stdErr.write(sp.finished_message);
 }
 
 fn writer(sp: *Spinner) !void {
-    var stdOut = std.io.getStdOut();
+    var stdErr = std.io.getStdErr();
     var current_char_idx: usize = 0;
 
     while (true) : (current_char_idx += 1) {
         if (!sp.keep_going.load(.SeqCst)) break;
         if (current_char_idx >= sp.loading_charset.len - 1) current_char_idx = 0;
 
-        _ = try stdOut.write("\r");
+        _ = try stdErr.write("\r");
 
-        _ = try stdOut.write(sp.loading_charset[current_char_idx]);
-        _ = try stdOut.write(" ");
-        _ = try stdOut.write(sp.loading_message);
+        _ = try stdErr.write(sp.loading_charset[current_char_idx]);
+        _ = try stdErr.write(" ");
+        _ = try stdErr.write(sp.loading_message);
 
         time.sleep(sp.framerate_ns);
     }
