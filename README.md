@@ -1,6 +1,6 @@
-# ZSpinner
+# ZTerm
 
-Zig spinner library for activity indication.
+Terminal abstraction library for Zig.
 
 ## License
 

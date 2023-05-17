@@ -3,11 +3,11 @@ const std = @import("std");
 pub fn build(b: *std.build.Builder) void {
     const mode = b.standardReleaseOptions();
 
-    const lib = b.addStaticLibrary("zspinner", "src/lib.zig");
+    const lib = b.addStaticLibrary("zterm", "zterm.zig");
     lib.setBuildMode(mode);
     lib.install();
 
-    const main_tests = b.addTest("src/lib.zig");
+    const main_tests = b.addTest("zterm.zig");
     main_tests.setBuildMode(mode);
 
     const test_step = b.step("test", "Run library tests");
