@@ -1,8 +1,8 @@
-const Spinner = @This();
-
 const std = @import("std");
 const Mutex = std.Thread.Mutex;
 const time = std.time;
+
+const Spinner = @This();
 
 const default_frame_rate = 150 * time.ns_per_ms;
 const default_charset = [_][]const u8{ "|", "/", "-", "\\" };
