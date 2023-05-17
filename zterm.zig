@@ -5,10 +5,13 @@ const std = @import("std");
 const time = std.time;
 
 pub fn main() !void {
-    var sp = Spinner.new(100 * time.ns_per_ms, null, "Loading...");
+    var sp = Spinner{
+        .loading_message = "Loading",
+        .finished_message = "Done",
+    };
     try sp.start();
 
-    time.sleep(5 * time.ns_per_s);
+    time.sleep(3 * time.ns_per_s);
     
-    sp.stop();
+    try sp.stop();
 }

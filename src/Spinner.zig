@@ -1,60 +1,55 @@
 const std = @import("std");
-const AtomicBool = std.atomic.Atomic(bool);
+const Atomic = std.atomic.Atomic;
 const Mutex = Thread.Mutex;
 const Thread = std.Thread;
 const time = std.time;
 const Spinner = @This();
 
-const default_framerate = 100 * time.ns_per_ms;
-const default_charset = [_][]const u8{ "|", "/", "-", "\\" };
+const default_loading_charset = [_][]const u8{ "|", "/", "-", "\\" };
+const default_finished_charset = "✓";
 
-keep_going: AtomicBool,
-spinner_thread: ?Thread,
+keep_going: Atomic(bool) = Atomic(bool).init(false),
+spinner_thread: ?Thread = null,
 
-// The number of nanoseconds to wait between frames.
-framerate_ns: u64,
+framerate_ns: u64 = 100 * time.ns_per_ms,
 
-charset: []const []const u8,
-message: []const u8,
+loading_charset: []const []const u8 = &default_loading_charset,
+finished_charset: []const u8 = default_finished_charset,
 
-pub fn new(framerate_ns: ?u64, charset: ?[]const []const u8, message: ?[]const u8) Spinner {
-    return Spinner{
-        .keep_going = AtomicBool.init(false),
-        .spinner_thread = null,
-        .framerate_ns = framerate_ns orelse default_framerate,
-        .charset = charset orelse &default_charset,
-        .message = message orelse "",
-    };
-}
+loading_message: []const u8 = "",
+finished_message: []const u8 = "",
 
 pub fn start(sp: *Spinner) !void {
     sp.keep_going.store(true, .SeqCst);
     sp.spinner_thread = try Thread.spawn(.{}, writer, .{sp});
 }
 
-pub fn stop(sp: *Spinner) void {
+pub fn stop(sp: *Spinner) !void {
     sp.keep_going.store(false, .SeqCst);
     if (sp.spinner_thread) |*thread| thread.join();
-}
 
-fn animateSpinnerOnce(sp: *Spinner) !void {
     var stdOut = std.io.getStdOut();
 
-    for (sp.charset) |frame| {
-        _ = try stdOut.write("\r");
-
-        _ = try stdOut.write(frame);
-        _ = try stdOut.write(" ");
-        _ = try stdOut.write(sp.message);
-
-        time.sleep(sp.framerate_ns);
-    }
+    _ = try stdOut.write("\r");
+    _ = try stdOut.write(sp.finished_charset);
+    _ = try stdOut.write(" ");
+    _ = try stdOut.write(sp.finished_message);
 }
 
 fn writer(sp: *Spinner) !void {
-    while (true) {
-        if (!sp.keep_going.load(.SeqCst)) break;
+    var stdOut = std.io.getStdOut();
+    var current_char_idx: usize = 0;
 
-        try sp.animateSpinnerOnce();
+    while (true) : (current_char_idx += 1) {
+        if (!sp.keep_going.load(.SeqCst)) break;
+        if (current_char_idx >= sp.loading_charset.len - 1) current_char_idx = 0;
+
+        _ = try stdOut.write("\r");
+
+        _ = try stdOut.write(sp.loading_charset[current_char_idx]);
+        _ = try stdOut.write(" ");
+        _ = try stdOut.write(sp.loading_message);
+
+        time.sleep(sp.framerate_ns);
     }
 }
