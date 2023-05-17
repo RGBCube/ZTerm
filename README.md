@@ -2,6 +2,33 @@
 
 Terminal abstraction library for Zig.
 
+## Contents
+
+This is a simple guide to using the library.
+The contents will be briefly covered here.
+
+### Spinner
+
+```zig
+const std = @import("std");
+const zterm = @import("zterm");
+
+pub fn main() !void {
+    var sp = zterm.Spinner{
+        .loading_charset = [_][]const u8{"⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"};
+        .loading_message = "Selling all your data to the CCP...",
+        .finished_charset = "✓",
+        .finished_message = "Lock your doors.",
+    };
+    try sp.start();
+
+    var stdOut = std.io.getOut();
+    try stdOut.writeAll("Calculating very important stuff...");
+
+    try sp.stop();
+}
+```
+
 ## License
 
 ```
