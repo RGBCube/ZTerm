@@ -16,8 +16,7 @@ const zterm = @import("zterm");
 
 pub fn main() !void {
     var sp = zterm.Spinner{
-        .charset = &[_][]const u8{"⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"},
-        .finished_charset = "✓",
+        .charset = &[_][]const u8{ "⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷" },
         .message = "Selling all your data to the CCP...",
     };
     try sp.start();
@@ -26,9 +25,10 @@ pub fn main() !void {
     sp.setMessage("Calculating very important stuff while selling your data...");
 
     time.sleep(2 * time.ns_per_s);
-    sp.setMessage("Sold all your data successfully!");
-
-    try sp.stop();
+    try sp.stop(.{
+        .charset = "✓",
+        .message = "Successfully sold all your data to the CCP! You data is not in safe hands!",
+    });
 }
 ```
 
