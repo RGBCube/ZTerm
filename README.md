@@ -16,17 +16,17 @@ const zterm = @import("zterm");
 
 pub fn main() !void {
     var sp = zterm.Spinner{
-        .loading_charset = &[_][]const u8{"⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"},
-        .loading_message = "Selling all your data to the CCP...",
+        .charset = &[_][]const u8{"⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"},
         .finished_charset = "✓",
-        .finished_message = "Lock your doors.",
+        .message = "Selling all your data to the CCP...",
     };
     try sp.start();
 
     time.sleep(3 * time.ns_per_s);
-    var stdOut = std.io.getStdOut();
-    try stdOut.writeAll("\rCalculating very important stuff while selling your data...\n");
+    sp.setMessage("Calculating very important stuff while selling your data...");
+
     time.sleep(2 * time.ns_per_s);
+    sp.setMessage("Sold all your data successfully!");
 
     try sp.stop();
 }
