@@ -5,8 +5,15 @@ const Thread = std.Thread;
 const time = std.time;
 const Spinner = @This();
 
+pub const charsets = [_][]const []const u8{
+    &[_][]const u8{ "|", "/", "-", "\\" },
+    &[_][]const u8{ "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" },
+    &[_][]const u8{ "⠋", "⠙", "⠚", "⠞", "⠖", "⠦", "⠴", "⠲", "⠳", "⠓" },
+    &[_][]const u8{ "⠄", "⠆", "⠇", "⠋", "⠙", "⠸", "⠰", "⠠", " ", "⠠", "⠰", "⠸", "⠙", "⠋", "⠇", "⠆", "⠄", " " },
+};
+
 // Must be only accessed when thread_lock is held by the current thread.
-charset: []const []const u8 = &[_][]const u8{ "|", "/", "-", "\\" },
+charset: []const []const u8 = charsets[0],
 message: []const u8 = "",
 
 keep_going: Atomic(bool) = Atomic(bool).init(false),
@@ -59,7 +66,7 @@ fn writer(sp: *Spinner) !void {
 
     while (true) : (current_char_idx += 1) {
         if (!sp.keep_going.load(.SeqCst)) return;
-        if (current_char_idx >= sp.charset.len - 1) current_char_idx = 0;
+        if (current_char_idx > sp.charset.len - 1) current_char_idx = 0;
 
         sp.thread_lock.lock();
         try stdErr.writeAll(sp.charset[current_char_idx]);

@@ -16,7 +16,7 @@ const zterm = @import("zterm");
 
 pub fn main() !void {
     var sp = zterm.Spinner{
-        .charset = &[_][]const u8{ "⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷" },
+        .charset = zterm.Spinner.charsets[3],
         .message = "Selling all your data to the CCP...",
     };
     try sp.start();
